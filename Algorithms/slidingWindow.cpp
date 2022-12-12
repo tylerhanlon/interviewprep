@@ -43,58 +43,123 @@ int question1(vector<int> input, int k){
 }
 
 // 2. For a given string of size n, find the longest substring with "k" unique characters [ERROR: return "error"]
-
 #define MAX_CHARS 26 
-//For alphabet string all lowercase. Can be doubled to include uppercase
-//Should try to figure out a solution that doesn't rely on an alphabet boundary
 
+bool isValid(int charCount[], int k){
+    int uniqueWindowCount = 0;
 
-string question2(string input, int k){
-
-    //For this question the first thing to do is find the number of unique characters
-
-    //We can do so by creating an int array and logging the occurences of each char
-
-    //TODO: Try a linear map solution as well as opposed to an array
-
-    int charCount[MAX_CHARS];
-
-    //Fills charCount with 0's
-    memset(charCount, 0, sizeof(charCount));
-
-    int uniqueCharCount = 0;
-
-    for(int i = 0; i < input.length(); i++){
-        //If the coordinating index in charCount is 0, increment uniqueCharCount as well as the number at that index for error checking
-        if(charCount[input[i] - 'a'] == 0){
-            uniqueCharCount++;
-            charCount[input[i] - 'a']++;
+    for(int i = 0; i < MAX_CHARS; i++){
+        if(charCount[i] > 0){
+            uniqueWindowCount++;
         }
     }
 
-    if(k > uniqueCharCount){
+    return (k >= uniqueWindowCount);
+}
+
+//For alphabet string all lowercase. Can be doubled to include uppercase
+//Should try to figure out a solution that doesn't rely on an alphabet boundary
+
+string question2(string input, int k){
+    int length = input.length();
+
+    int charCount[MAX_CHARS];
+
+    memset(charCount, 0, sizeof(charCount)); //WHY DOES IT NOT WORK TO USE MAX_CHARS INSTEAD OF CHARCOUNT?
+
+
+    //Add in some error checking
+
+    for(int i = 0; i < length; i++){
+        charCount[input[i] - 'a']++;
+    }
+
+    int uniqueChar = 0;
+
+    for(int i = 0; i < MAX_CHARS; i++){
+        if(charCount[i] > 0){
+            uniqueChar++;
+        }
+    }
+
+    if(uniqueChar < k){
         return "error";
     }
 
-    //Since the size of the window is dynamic, we will just set it to the first element
+    memset(charCount, 0, sizeof(charCount));
 
-    //We need variables to keep track of the previous and current location of the window in this problem since we can't use sum to compare
+    charCount[input[0] - 'a']++;
 
-    int maxWindowStart, maxWindowEnd, windowStart = 0;
-    int windowEnd = 1;
+    int currentWindowStart = 0;
+    int maxWindowStart = 0;
+    int maxWindowEnd = 1;
+    int currentWindowEnd = 0;
 
-    //As of right now window goes from [0] - > 1 so just the first element
+    for(int i = 1; i < length; i++){
 
-    for(int i = 1; i < input.length(); i++){
-        //Hint: remember to use count to keep track of stuff
+    charCount[input[i] - 'a']++;
+    currentWindowEnd++;
+
+    while(!isValid(charCount, k)){
+        charCount[input[currentWindowStart] - 'a']--;
+        currentWindowStart++;
+    }
+
+    if((currentWindowEnd - currentWindowStart+1) > maxWindowEnd){
+        maxWindowStart = currentWindowStart;
+        maxWindowEnd = currentWindowEnd - currentWindowStart+1;
     }
 
 
+    }
 
-        std::cout << "Number of unique chars is " << uniqueCharCount;
-
-    return "hello";
+    return input.substr(maxWindowStart, maxWindowEnd);
 }
+
+
+//3. For a string of size k, find the shortest substring containing k unique characters
+
+bool isValid2(int charCount[], int k){
+    int uniqueWindowCount = 0;
+
+    for(int i = 0; i < MAX_CHARS; i++){
+        if(charCount[i] > 0){
+            uniqueWindowCount++;
+        }
+    }
+
+    return (k == uniqueWindowCount);
+}
+
+string question3(string input, int k){
+
+        int length = input.length();
+
+        int charCount[MAX_CHARS];
+
+        memset(charCount, 0, sizeof(charCount)); //WHY DOES IT NOT WORK TO USE MAX_CHARS INSTEAD OF CHARCOUNT?
+
+        charCount[input[0] - 'a']++;
+
+        int currentWindowStart = 0;
+        int maxWindowStart = 0;
+        int minWindowEnd = length;
+        int currentWindowEnd = 0;
+
+        for(int i = 0; i < length; i++){
+            charCount[input[i] - 'a']++;
+            currentWindowEnd++;
+
+            while(!isValid(charCount, k)){
+                charCount[input[i] - 'a']--;
+                currentWindowStart++;
+            }
+
+
+        }
+        return input.substr(maxWindowStart, minWindowEnd);
+}
+
 
 int main () {
 
@@ -109,10 +174,18 @@ int main () {
 
     //Next up is the function for question 2
 
-    string inputString = "aabcdaabbd";
+    string inputString = "aabacbebebe";
     k = 3;
 
     string solution2 = question2(inputString, k);
+
+    std::cout << "The solution to question 2 is: " << solution2 << endl;
+
+    //Next is for question 3 (similar to question 2)
+
+    string solution3 = question3(inputString, k);
+
+    std::cout << "The solution to question 4 is: " << solution3 << endl;
 
 
 
